@@ -6,9 +6,7 @@ import biblioteca.model.Loan;
 import biblioteca.model.Member;
 
 import java.text.Normalizer;
-import java.time.Duration;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -107,9 +105,8 @@ public class LibraryService {
         for (Loan loan : library.loans()) {
             if (loan.memberId() == memberId){
                 String bookName = library.findBook(loan.bookId()).get().title();
-                Duration borrowDuration = Duration.between(loan.borrowedAt().plusDays(1).atStartOfDay(), LocalDateTime.now());
 
-                if (!loan.wasReturned() && borrowDuration.toDays() > 14) {
+                if (isLoanLate(loan)) {
                     return new LoanResult(false,"Não foi possível realizar o empréstimo, o membro está com o empréstimo do livro " + bookName + " atrasado.");
                 }
             }
@@ -154,5 +151,50 @@ public class LibraryService {
         return new LoanResult(true, "Devolução realizada com sucesso.");
     }
 
-    // TODO (Tarefa 4): o que um membro tem em mãos, e o que está atrasado.
+    /**
+     * Busca um membro com o id informado, se existir.
+     *
+     * @param memberId id do membro buscado.
+     */
+    public Optional<Member> findMember(int memberId) {
+        return library.findMember(memberId);
+    }
+
+    /**
+     * Busca um livro com o id informado, se existir.
+     *
+     * @param bookId id do livro buscado.
+     */
+    public Optional<Book> findBook(int bookId) {
+        return library.findBook(bookId);
+    }
+
+    /**
+     * Calcula a data limite para devolução de um empréstimo, a partir da data em que foi feito.
+     *
+     * @param borrowedAt data em que o empréstimo foi realizado.
+     */
+    public LocalDate calculateReturnDate(LocalDate borrowedAt) {
+        return borrowedAt.plusDays(15);
+    }
+
+    /**
+     * Empréstimos ativos, ainda não devolvidos, de um membro.
+     *
+     * @param memberId id do membro.
+     */
+    public List<Loan> memberLoans(int memberId) {
+        return library.loans().stream()
+            .filter(loan -> loan.memberId() == memberId && !loan.wasReturned())
+            .toList();
+    }
+
+    /**
+     * Verifica se um empréstimo está com a devolução atrasada.
+     *
+     * @param loan empréstimo a ser verificado.
+     */
+    public boolean isLoanLate(Loan loan) {
+        return !loan.wasReturned() && calculateReturnDate(loan.borrowedAt()).isBefore(LocalDate.now());
+    }
 }

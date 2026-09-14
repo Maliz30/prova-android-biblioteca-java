@@ -6,13 +6,17 @@ import biblioteca.data.Library;
 import biblioteca.model.Book;
 import biblioteca.service.LibraryService;
 import biblioteca.service.LoanResult;
+import biblioteca.model.Loan;
+import biblioteca.model.Member;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Scanner;
+import java.time.format.DateTimeFormatter;
 
 public final class Main {
+    private static final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
     public static void main(String[] args) {
         LibraryService service = new LibraryService(new Library());
@@ -40,9 +44,10 @@ public final class Main {
                     Console.info("Até mais.");
                     return;
                 }
-                // TODO (Tarefa 4): implementar os comandos novos aqui.
-                case "membro" ->
-                        Console.error("comando '" + command.name() + "' ainda não implementado.");
+                case "membro" -> {
+                    Optional<String> memberId = command.argument(0);
+                    showMemberLoans(service, memberId);
+                }
                 case "buscar" -> {
                     String arguments = String.join(" ", command.arguments());
                     searchBookCatalog(service, arguments);
@@ -200,5 +205,49 @@ public final class Main {
         } else {
             Console.error(loanResult.message());
         }
+    }
+
+    /**
+     * Imprime a lista de empréstimos ativos de um membro, com a data de devolução
+     * esperada e se cada um está atrasado.
+     */
+    private static void showMemberLoans(LibraryService service, Optional<String> memberId) {
+        if (!validateMemberId(memberId)){
+            return;
+        }
+
+        int parsedMemberId = Integer.parseInt(memberId.get());
+        Optional<Member> member = service.findMember(parsedMemberId);
+        if(member.isEmpty()){
+            Console.error("O membro informado não foi encontrado.");
+            return;
+        }
+
+        List<Loan> activeLoans = service.memberLoans(parsedMemberId);
+        if (activeLoans.isEmpty()) {
+            Console.info("O membro informado não possui empréstimos ativos no momento.");
+            return;
+        }
+        
+        List<List<String>> rows = new ArrayList<>();
+        for (Loan loan : activeLoans) {
+            Optional<Book> optionalBook = service.findBook(loan.bookId());
+            if (optionalBook.isEmpty()){
+                continue;
+            }
+
+            Book book = optionalBook.get();
+            rows.add(List.of(
+                String.valueOf(book.id()),
+                book.title(),
+                book.author(),
+                service.calculateReturnDate(loan.borrowedAt()).format(dateFormatter),
+                service.isLoanLate(loan) ? "atrasado" : "em dia"
+            ));
+        }
+
+        Console.title("Empréstimos ativos para o membro " + member.get().name());
+
+        Console.table(List.of("id", "título", "autor", "data de devolução esperada", "status"), rows);
     }
 }
