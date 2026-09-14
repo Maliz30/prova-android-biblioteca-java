@@ -4,6 +4,7 @@ import biblioteca.data.Library;
 import biblioteca.model.Book;
 import biblioteca.model.Loan;
 
+import java.text.Normalizer;
 import java.util.List;
 
 /**
@@ -45,7 +46,32 @@ public class LibraryService {
         return availableUnits;
     }
 
-    // TODO (Tarefa 2): busca por título, autor ou gênero.
+    /**
+     * Livros cujo título, autor ou gênero contém o termo buscado.
+     *
+     * @param searchText termo buscado.
+     */
+    public List<Book> searchBook(String searchText) {
+        String normalizedSearch = normalize(searchText);
+
+        return library.books().stream()
+            .filter(book ->
+                normalize(book.title()).contains(normalizedSearch) ||
+                normalize(book.author()).contains(normalizedSearch) ||
+                normalize(book.genre()).contains(normalizedSearch))
+            .toList();
+    }
+
+    /**
+     * Remove acentos e caixa alta de um texto, para comparação na busca.
+     *
+     * @param text texto a ser normalizado.
+     */
+    private String normalize(String text) {
+        String withoutAccents = Normalizer.normalize(text, Normalizer.Form.NFD)
+                .replaceAll("\\p{M}", "");
+        return withoutAccents.toLowerCase();
+    }
 
     // TODO (Tarefa 3): emprestar e devolver, com as regras do enunciado.
 

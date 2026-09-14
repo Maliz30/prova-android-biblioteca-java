@@ -39,9 +39,13 @@ public final class Main {
                     Console.info("Até mais.");
                     return;
                 }
-                // TODO (Tarefas 2 a 4): implementar os comandos novos aqui.
-                case "buscar", "emprestar", "devolver", "membro" ->
+                // TODO (Tarefas 3 a 4): implementar os comandos novos aqui.
+                case "emprestar", "devolver", "membro" ->
                         Console.error("comando '" + command.name() + "' ainda não implementado");
+                case "buscar" -> {
+                    String arguments = String.join(" ", command.arguments());
+                    searchBookCatalog(service, arguments);
+                }
                 default ->
                         Console.error("não conheço o comando '" + command.name() + "'. Tente 'ajuda'.");
             }
@@ -73,8 +77,38 @@ public final class Main {
     private static void showCatalog(LibraryService service) {
         Console.title("Acervo");
 
+        printBookList(service, service.catalog());
+    }
+
+    /**
+     * Livros que batem com o termo buscado.
+     *
+     * @param searchText termo buscado.
+     */
+    private static void searchBookCatalog(LibraryService service, String searchText) {
+        if (searchText.isBlank()) {
+            Console.error("É necessário informar ao menos uma palavra para realizar a busca");
+            return;
+        }
+
+        List<Book> foundBooks = service.searchBook(searchText);
+        if (foundBooks.isEmpty()) {
+            Console.error("Não foram encontrados exemplares com os parâmetros informados: " + searchText);
+            return;
+        }
+
+        Console.title("Exemplares encontrados");
+
+        printBookList(service, foundBooks);
+    }
+
+    /**
+     * Monta e imprime a tabela de livros.
+     */
+    private static void printBookList(LibraryService service, List<Book> books) {
         List<List<String>> rows = new ArrayList<>();
-        for (Book book : service.catalog()) {
+
+        for (Book book : books) {
             rows.add(List.of(
                     String.valueOf(book.id()),
                     book.title(),
