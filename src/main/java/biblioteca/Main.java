@@ -69,10 +69,6 @@ public final class Main {
     /**
      * Comando de referência: se ficar em dúvida sobre estilo, copie o que está
      * aqui.
-     *
-     * <p>TODO (Tarefa 1): hoje a tabela mostra quantos exemplares a biblioteca
-     * tem no total. Ela precisa mostrar quantos estão disponíveis agora. Veja o
-     * enunciado.
      */
     private static void showCatalog(LibraryService service) {
         Console.title("Acervo");
