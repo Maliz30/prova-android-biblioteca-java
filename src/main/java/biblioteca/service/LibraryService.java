@@ -40,15 +40,11 @@ public class LibraryService {
      * @param book livro cuja disponibilidade será calculada.
      */
     public int availableCopies(Book book) {
-        int availableUnits = book.copies();
+        long loanCount = library.loans().stream()
+            .filter(loan -> loan.bookId() == book.id() && !loan.wasReturned())
+            .count();
 
-        for (Loan loan : library.loans()) {
-            if (loan.bookId() == book.id()) {
-                availableUnits--;
-            }
-        }
-
-        return availableUnits;
+        return book.copies() - (int) loanCount;
     }
 
     /**
