@@ -135,7 +135,7 @@ public final class Main {
      * Empresta um livro a um membro.
      */
     private static void handleBorrowBook(LibraryService service, Optional<String> bookId, Optional<String> memberId) {
-        if (!validateIds(bookId, memberId)){
+        if (!validateBookId(bookId) || !validateMemberId(memberId)){
             return;
         }
 
@@ -148,7 +148,7 @@ public final class Main {
      * Devolve um livro emprestado por um membro.
      */
     private static void handleReturnBook(LibraryService service, Optional<String> bookId, Optional<String> memberId) {
-        if (!validateIds(bookId, memberId)){
+        if (!validateBookId(bookId) || !validateMemberId(memberId)){
             return;
         }
 
@@ -158,11 +158,10 @@ public final class Main {
     }
 
     /**
-     * Valida os ids de livro e membro recebidos do comando, reportando o
-     * motivo com {@code Console.error} quando algum deles está ausente ou
-     * não é um número.
+     * Valida o id de livro recebido do comando, reportando o motivo com
+     * {@code Console.error} quando ele está ausente ou não é um número.
      */
-    private static boolean validateIds(Optional<String> bookId, Optional<String> memberId) {
+    private static boolean validateBookId(Optional<String> bookId) {
         if (bookId.isEmpty()) {
             Console.error("É necessário informar o id do livro.");
             return false;
@@ -172,6 +171,14 @@ public final class Main {
             return false;
         }
 
+        return true;
+    }
+
+    /**
+     * Valida o id de membro recebido do comando, reportando o motivo com
+     * {@code Console.error} quando ele está ausente ou não é um número.
+     */
+    private static boolean validateMemberId(Optional<String> memberId) {
         if (memberId.isEmpty()) {
             Console.error("É necessário informar o id do membro.");
             return false;
