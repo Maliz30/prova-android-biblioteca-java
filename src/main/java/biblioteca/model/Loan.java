@@ -8,5 +8,5 @@ import java.time.LocalDate;
  * <p>Vem com o mínimo: quem pegou, o que pegou e quando. Se precisar de mais
  * informação para resolver as tarefas, sinta-se livre para mudar este tipo.
  */
-public record Loan(int bookId, int memberId, LocalDate borrowedAt) {
+public record Loan(int bookId, int memberId, LocalDate borrowedAt, boolean wasReturned) {
 }

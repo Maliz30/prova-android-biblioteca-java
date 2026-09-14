@@ -5,6 +5,7 @@ import biblioteca.cli.Console;
 import biblioteca.data.Library;
 import biblioteca.model.Book;
 import biblioteca.service.LibraryService;
+import biblioteca.service.LoanResult;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,12 +40,22 @@ public final class Main {
                     Console.info("Até mais.");
                     return;
                 }
-                // TODO (Tarefas 3 a 4): implementar os comandos novos aqui.
-                case "emprestar", "devolver", "membro" ->
-                        Console.error("comando '" + command.name() + "' ainda não implementado");
+                // TODO (Tarefa 4): implementar os comandos novos aqui.
+                case "membro" ->
+                        Console.error("comando '" + command.name() + "' ainda não implementado.");
                 case "buscar" -> {
                     String arguments = String.join(" ", command.arguments());
                     searchBookCatalog(service, arguments);
+                }
+                case "emprestar" -> {
+                    Optional<String> bookId = command.argument(0);
+                    Optional<String> memberId = command.argument(1);
+                    handleBorrowBook(service, bookId, memberId);
+                }
+                case "devolver" -> {
+                    Optional<String> bookId = command.argument(0);
+                    Optional<String> memberId = command.argument(1);
+                    handleReturnBook(service, bookId, memberId);
                 }
                 default ->
                         Console.error("não conheço o comando '" + command.name() + "'. Tente 'ajuda'.");
@@ -83,13 +94,13 @@ public final class Main {
      */
     private static void searchBookCatalog(LibraryService service, String searchText) {
         if (searchText.isBlank()) {
-            Console.error("É necessário informar ao menos uma palavra para realizar a busca");
+            Console.error("É necessário informar ao menos uma palavra para realizar a busca.");
             return;
         }
 
         List<Book> foundBooks = service.searchBook(searchText);
         if (foundBooks.isEmpty()) {
-            Console.error("Não foram encontrados exemplares com os parâmetros informados: " + searchText);
+            Console.error("Não foram encontrados exemplares com os parâmetros informados: " + searchText + ".");
             return;
         }
 
@@ -114,5 +125,73 @@ public final class Main {
         }
 
         Console.table(List.of("id", "título", "autor", "gênero", "exemplares disponíveis"), rows);
+    }
+
+    private static boolean isInteger(String str) {
+        return str.matches("^[0-9]+$");
+    }
+
+    /**
+     * Empresta um livro a um membro.
+     */
+    private static void handleBorrowBook(LibraryService service, Optional<String> bookId, Optional<String> memberId) {
+        if (!validateIds(bookId, memberId)){
+            return;
+        }
+
+        LoanResult loanResult = service.borrowBook(Integer.parseInt(bookId.get()), Integer.parseInt(memberId.get()));
+
+        printLoanMessage(loanResult);
+    }
+
+    /**
+     * Devolve um livro emprestado por um membro.
+     */
+    private static void handleReturnBook(LibraryService service, Optional<String> bookId, Optional<String> memberId) {
+        if (!validateIds(bookId, memberId)){
+            return;
+        }
+
+        LoanResult loanResult = service.returnBook(Integer.parseInt(bookId.get()), Integer.parseInt(memberId.get()));
+
+        printLoanMessage(loanResult);
+    }
+
+    /**
+     * Valida os ids de livro e membro recebidos do comando, reportando o
+     * motivo com {@code Console.error} quando algum deles está ausente ou
+     * não é um número.
+     */
+    private static boolean validateIds(Optional<String> bookId, Optional<String> memberId) {
+        if (bookId.isEmpty()) {
+            Console.error("É necessário informar o id do livro.");
+            return false;
+        }
+        if (!isInteger(bookId.get())) {
+            Console.error("O id informado para o livro é inválido.");
+            return false;
+        }
+
+        if (memberId.isEmpty()) {
+            Console.error("É necessário informar o id do membro.");
+            return false;
+        }
+        if (!isInteger(memberId.get())) {
+            Console.error("O id informado para o membro é inválido.");
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Mostra o resultado de uma operação de empréstimo ou devolução.
+     */
+    private static void printLoanMessage(LoanResult loanResult) {
+        if (loanResult.success()) {
+            Console.info(loanResult.message());
+        } else {
+            Console.error(loanResult.message());
+        }
     }
 }

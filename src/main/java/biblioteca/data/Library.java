@@ -38,10 +38,10 @@ public class Library {
             new Member(4, "Diego Farias"));
 
     private final List<Loan> loans = new ArrayList<>(List.of(
-            new Loan(1, 1, LocalDate.now().minusDays(3)),
-            new Loan(5, 1, LocalDate.now().minusDays(20)),
-            new Loan(6, 2, LocalDate.now().minusDays(5)),
-            new Loan(1, 3, LocalDate.now().minusDays(10))));
+            new Loan(1, 1, LocalDate.now().minusDays(3), false),
+            new Loan(5, 1, LocalDate.now().minusDays(20), false),
+            new Loan(6, 2, LocalDate.now().minusDays(5), false),
+            new Loan(1, 3, LocalDate.now().minusDays(10), false)));
 
     public List<Book> books() {
         return books;
