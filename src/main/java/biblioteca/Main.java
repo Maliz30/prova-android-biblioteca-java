@@ -80,9 +80,9 @@ public final class Main {
                     book.title(),
                     book.author(),
                     book.genre(),
-                    String.valueOf(book.copies())));
+                    String.valueOf(service.availableCopies(book))));
         }
 
-        Console.table(List.of("id", "título", "autor", "gênero", "exemplares"), rows);
+        Console.table(List.of("id", "título", "autor", "gênero", "exemplares disponíveis"), rows);
     }
 }

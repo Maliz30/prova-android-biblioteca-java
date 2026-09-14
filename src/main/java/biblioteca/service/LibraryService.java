@@ -2,6 +2,7 @@ package biblioteca.service;
 
 import biblioteca.data.Library;
 import biblioteca.model.Book;
+import biblioteca.model.Loan;
 
 import java.util.List;
 
@@ -27,7 +28,22 @@ public class LibraryService {
         return library.books();
     }
 
-    // TODO (Tarefa 1): quantos exemplares deste título estão livres agora?
+    /**
+     * Quantos exemplares de um livro estão livres para empréstimo agora.
+     *
+     * @param book livro cuja disponibilidade será calculada.
+     */
+    public int availableCopies(Book book) {
+        int availableUnits = book.copies();
+
+        for (Loan loan : library.loans()) {
+            if (loan.bookId() == book.id()) {
+                availableUnits--;
+            }
+        }
+
+        return availableUnits;
+    }
 
     // TODO (Tarefa 2): busca por título, autor ou gênero.
 
