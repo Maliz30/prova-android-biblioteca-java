@@ -4,7 +4,7 @@ Maria Alice Bernardo da Costa Silva
 
 **Link do repositório:** https://github.com/Maliz30/prova-android-biblioteca-java
 
-> O repositório está privado e enviei convite para o @ViniciusEvo como colaborador. Caso desejem que torne o repositório público ou adicione algum outro avaliador como membro para que possa visualizar o repositório além do .zip enviado, basta me contactar via email marialice3003@gmail.com ou whatsapp (61) 9 8466-2347. 
+> O repositório está privado e enviei convite para o @ViniciusEvo como colaborador. Caso desejem que torne o repositório público ou adicione algum outro avaliador como membro para que possa visualizar o repositório além do .zip enviado, basta me contactar via email marialice3003@gmail.com. 
 
 ## Decisões técnicas tomadas
 
