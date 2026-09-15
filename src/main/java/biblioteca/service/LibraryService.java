@@ -197,4 +197,13 @@ public class LibraryService {
     public boolean isLoanLate(Loan loan) {
         return !loan.wasReturned() && calculateReturnDate(loan.borrowedAt()).isBefore(LocalDate.now());
     }
+
+    /**
+     * Todos os empréstimos atualmente atrasados, de qualquer membro.
+     */
+    public List<Loan> generateReport() {
+        return library.loans().stream()
+            .filter(loan -> isLoanLate(loan))
+            .toList();
+    }
 }

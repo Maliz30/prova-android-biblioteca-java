@@ -62,6 +62,7 @@ public final class Main {
                     Optional<String> memberId = command.argument(1);
                     handleReturnBook(service, bookId, memberId);
                 }
+                case "relatorio" -> showReport(service);
                 default ->
                         Console.error("não conheço o comando '" + command.name() + "'. Tente 'ajuda'.");
             }
@@ -78,6 +79,7 @@ public final class Main {
                         List.of("emprestar <livro> <membro>", "empresta um exemplar a um membro"),
                         List.of("devolver <livro> <membro>", "devolve um exemplar"),
                         List.of("membro <id>", "mostra os empréstimos de um membro"),
+                        List.of("relatorio", "mostra todos os empréstimos atrasados de todos os membros"),
                         List.of("ajuda", "mostra esta lista"),
                         List.of("sair", "encerra o programa")));
     }
@@ -249,5 +251,45 @@ public final class Main {
         Console.title("Empréstimos ativos para o membro " + member.get().name());
 
         Console.table(List.of("id", "título", "autor", "data de devolução esperada", "status"), rows);
+    }
+
+    /**
+     * Mostra os empréstimos atrasados de todos os membros.
+     */
+    private static void showReport(LibraryService service) {
+        List<Loan> report = service.generateReport();
+        if(report.isEmpty()){
+            Console.info("Não há empréstimos em atraso no momento.");
+            return;
+        }
+
+        List<List<String>> rows = new ArrayList<>();
+        for (Loan loan : report) {
+            Optional<Book> optionalBook = service.findBook(loan.bookId());
+            if (optionalBook.isEmpty()){
+                continue;
+            }
+
+            Optional<Member> optionalMember = service.findMember(loan.memberId());
+            if (optionalMember.isEmpty()){
+                continue;
+            }
+
+            Book book = optionalBook.get();
+            Member member = optionalMember.get();
+            rows.add(List.of(
+                String.valueOf(member.id()),
+                member.name(),
+                String.valueOf(book.id()),
+                book.title(),
+                book.author(),
+                service.calculateReturnDate(loan.borrowedAt()).format(dateFormatter)
+            ));
+        }
+
+        Console.title("Empréstimos em atraso");
+
+        Console.table(List.of("id do membro", "membro", "id do livro", "livro", "autor", "data de devolução esperada"), rows);
+
     }
 }
